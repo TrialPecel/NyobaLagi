@@ -10,6 +10,7 @@ class MusicController extends ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   List<SongModel> _songList = [];
+  List<PlaylistModel> _playlists = [];
   int _currentIndex = -1;
   bool _isPlaying = false;
   Duration _position = Duration.zero;
@@ -19,6 +20,7 @@ class MusicController extends ChangeNotifier {
   bool _isLoading = true;
 
   List<SongModel> get songList => _songList;
+  List<PlaylistModel> get playlists => _playlists;
   int get currentIndex => _currentIndex;
   bool get isPlaying => _isPlaying;
   Duration get position => _position;
@@ -37,6 +39,7 @@ class MusicController extends ChangeNotifier {
     await checkAndRequestPermissions();
     if (_permissionGranted) {
       await querySongs();
+      await queryPlaylists();
     }
     _setupAudioPlayerListeners();
   }
@@ -84,6 +87,16 @@ class MusicController extends ChangeNotifier {
       _currentIndex = 0;
       await _updateDominantColor(_songList[_currentIndex]);
     }
+    notifyListeners();
+  }
+
+  Future<void> queryPlaylists() async {
+    _playlists = await _audioQuery.queryPlaylists(
+      sortType: null,
+      orderType: OrderType.ASC_OR_SMALLER,
+      uriType: UriType.EXTERNAL,
+      ignoreCase: true,
+    );
     notifyListeners();
   }
 

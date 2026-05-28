@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MusicController()),
       ],
       child: MaterialApp(
-        title: 'Flutter Music Player',
+        title: 'Rimble',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,

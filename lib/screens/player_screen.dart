@@ -27,7 +27,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     super.dispose();
   }
 
-  void _showCreatePlaylistPanel(BuildContext context) {
+  void _showPlaylistsPanel(BuildContext context, MusicController controller) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -48,17 +48,46 @@ class _PlayerScreenState extends State<PlayerScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Create Playlist',
+                'Playlists',
                 style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
+              
+              // Existing Playlists
+              if (controller.playlists.isEmpty)
+                Text(
+                  'No playlists found.',
+                  style: GoogleFonts.inter(fontSize: 14, color: Colors.black54),
+                )
+              else
+                SizedBox(
+                  height: 150, // Constrain height for the list
+                  child: ListView.builder(
+                    itemCount: controller.playlists.length,
+                    itemBuilder: (context, index) {
+                      final playlist = controller.playlists[index];
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.playlist_play, color: Colors.black87),
+                        title: Text(playlist.playlist, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                        subtitle: Text('${playlist.numOfSongs} songs', style: GoogleFonts.inter(fontSize: 12, color: Colors.black54)),
+                        onTap: () {
+                          // Handle playlist tap here
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+                
+              const Divider(height: 32),
+              
               Text(
-                'Enter a name for your new playlist.',
-                style: GoogleFonts.inter(fontSize: 14, color: Colors.black54),
+                'Create New Playlist',
+                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               TextField(
-                autofocus: true,
                 decoration: InputDecoration(
                   hintText: 'Playlist Name',
                   filled: true,
@@ -239,7 +268,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             ),
             child: IconButton(
               icon: const Icon(Icons.queue_music, color: Colors.black87),
-              onPressed: () => _showCreatePlaylistPanel(context),
+              onPressed: () => _showPlaylistsPanel(context, context.read<MusicController>()),
             ),
           ),
         ],
