@@ -8,6 +8,7 @@ class RadialDial extends StatelessWidget {
   final String durationText;
   final bool isPlaying;
   final VoidCallback onTogglePlay;
+  final void Function(double)? onSeek;
 
   const RadialDial({
     Key? key,
@@ -16,7 +17,33 @@ class RadialDial extends StatelessWidget {
     required this.durationText,
     required this.isPlaying,
     required this.onTogglePlay,
+    this.onSeek,
   }) : super(key: key);
+
+  void _handlePan(Offset localPosition, Size size) {
+    if (onSeek == null) return;
+    
+    final center = Offset(size.width / 2, size.height);
+    final dx = localPosition.dx - center.dx;
+    final dy = localPosition.dy - center.dy;
+
+    // Calculate angle using atan2
+    // Angle goes from -pi (left) to 0 (right)
+    double angle = math.atan2(dy, dx);
+
+    // If angle is positive, it means they dragged below the center line.
+    // Snap to 0% if on the left half, 100% if on the right half.
+    double newProgress;
+    if (angle > 0) {
+      newProgress = dx < 0 ? 0.0 : 1.0;
+    } else {
+      // Map angle from [-pi, 0] to [0.0, 1.0]
+      newProgress = (angle + math.pi) / math.pi;
+    }
+
+    newProgress = newProgress.clamp(0.0, 1.0);
+    onSeek!(newProgress);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +53,16 @@ class RadialDial extends StatelessWidget {
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          CustomPaint(
-            size: const Size(300, 150),
-            painter: _DialPainter(progress: progress),
+          GestureDetector(
+            onPanStart: (details) => _handlePan(details.localPosition, const Size(300, 150)),
+            onPanUpdate: (details) => _handlePan(details.localPosition, const Size(300, 150)),
+            child: Container(
+              color: Colors.transparent, // Required to catch gestures over empty space
+              child: CustomPaint(
+                size: const Size(300, 150),
+                painter: _DialPainter(progress: progress),
+              ),
+            ),
           ),
           Positioned(
             bottom: 0,

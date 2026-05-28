@@ -27,6 +27,82 @@ class _PlayerScreenState extends State<PlayerScreen> {
     super.dispose();
   }
 
+  void _showCreatePlaylistPanel(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 24,
+            right: 24,
+            top: 32,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Create Playlist',
+                style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Enter a name for your new playlist.',
+                style: GoogleFonts.inter(fontSize: 14, color: Colors.black54),
+              ),
+              const SizedBox(height: 24),
+              TextField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Playlist Name',
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                ),
+                style: GoogleFonts.inter(fontSize: 16),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black87,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 0,
+                  ),
+                  onPressed: () {
+                    // Logic to create playlist would go here
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Playlist created', style: GoogleFonts.inter()),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                  },
+                  child: Text('Create', style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+                ),
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<MusicController>(
@@ -66,18 +142,17 @@ class _PlayerScreenState extends State<PlayerScreen> {
             child: SafeArea(
               child: Column(
                 children: [
-                  _buildHeader(),
+                  _buildHeader(context),
                   Expanded(
                     flex: 55,
                     child: _buildCarousel(controller),
                   ),
                   _buildPagination(controller),
                   Expanded(
-                    flex: 35,
+                    flex: 40,
                     child: _buildRadialDialAndControls(controller),
                   ),
-                  _buildBottomNavBar(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -142,7 +217,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
       child: Row(
@@ -164,7 +239,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             ),
             child: IconButton(
               icon: const Icon(Icons.queue_music, color: Colors.black87),
-              onPressed: () {},
+              onPressed: () => _showCreatePlaylistPanel(context),
             ),
           ),
         ],
@@ -219,12 +294,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(totalDots, (index) {
-        // Simplified dot logic for a 5-dot window around current index
         bool isActive = false;
         if (controller.songList.length <= 5) {
           isActive = index == controller.currentIndex;
         } else {
-          isActive = index == 2; // middle dot is active
+          isActive = index == 2;
         }
 
         return AnimatedContainer(
@@ -245,14 +319,28 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        RadialDial(
-          progress: controller.duration.inMilliseconds > 0
-              ? controller.position.inMilliseconds / controller.duration.inMilliseconds
-              : 0.0,
-          positionText: _formatDuration(controller.position),
-          durationText: _formatDuration(controller.duration),
-          isPlaying: controller.isPlaying,
-          onTogglePlay: controller.togglePlayPause,
+        StreamBuilder<Duration>(
+          stream: controller.positionStream,
+          builder: (context, positionSnapshot) {
+            return StreamBuilder<Duration?>(
+              stream: controller.durationStream,
+              builder: (context, durationSnapshot) {
+                final position = positionSnapshot.data ?? controller.position;
+                final duration = durationSnapshot.data ?? controller.duration;
+                
+                return RadialDial(
+                  progress: duration.inMilliseconds > 0
+                      ? position.inMilliseconds / duration.inMilliseconds
+                      : 0.0,
+                  positionText: _formatDuration(position),
+                  durationText: _formatDuration(duration),
+                  isPlaying: controller.isPlaying,
+                  onTogglePlay: controller.togglePlayPause,
+                  onSeek: controller.seekToPercentage,
+                );
+              }
+            );
+          }
         ),
         const SizedBox(height: 16),
         Row(
@@ -263,7 +351,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               icon: const Icon(Icons.skip_previous, color: Colors.black87),
               onPressed: controller.previous,
             ),
-            const SizedBox(width: 80), // Space for dial
+            const SizedBox(width: 80),
             IconButton(
               iconSize: 32,
               icon: const Icon(Icons.skip_next, color: Colors.black87),
@@ -272,45 +360,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildBottomNavBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-      child: Container(
-        height: 64,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(32),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildNavItem(Icons.search),
-            _buildNavItem(Icons.close), // Map to queue close or similar
-            _buildNavItem(Icons.person_outline),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Icon(icon, color: Colors.black87, size: 24),
     );
   }
 

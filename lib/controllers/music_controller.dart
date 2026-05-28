@@ -87,6 +87,9 @@ class MusicController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Stream<Duration> get positionStream => _audioPlayer.positionStream;
+  Stream<Duration?> get durationStream => _audioPlayer.durationStream;
+
   void _setupAudioPlayerListeners() {
     _audioPlayer.playerStateStream.listen((state) {
       _isPlaying = state.playing;
@@ -98,12 +101,12 @@ class MusicController extends ChangeNotifier {
 
     _audioPlayer.positionStream.listen((pos) {
       _position = pos;
-      notifyListeners();
+      // notifyListeners(); removed to prevent flickering
     });
 
     _audioPlayer.durationStream.listen((dur) {
       _duration = dur ?? Duration.zero;
-      notifyListeners();
+      // notifyListeners(); removed to prevent flickering
     });
   }
 
@@ -150,6 +153,13 @@ class MusicController extends ChangeNotifier {
 
   Future<void> seekTo(Duration position) async {
     await _audioPlayer.seek(position);
+  }
+
+  Future<void> seekToPercentage(double percent) async {
+    if (_duration.inMilliseconds > 0) {
+      int targetMs = (_duration.inMilliseconds * percent).round();
+      await _audioPlayer.seek(Duration(milliseconds: targetMs));
+    }
   }
 
   Future<void> _updateDominantColor(SongModel song) async {
