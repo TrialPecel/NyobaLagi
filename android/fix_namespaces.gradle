@@ -1,0 +1,18 @@
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            project.android {
+                if (namespace == null) {
+                    def manifest = project.file("src/main/AndroidManifest.xml")
+                    if (manifest.exists()) {
+                        def text = manifest.getText()
+                        def matcher = text =~ /package="([^"]+)"/
+                        if (matcher.find()) {
+                            namespace = matcher.group(1)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
