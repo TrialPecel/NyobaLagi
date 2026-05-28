@@ -1,5 +1,7 @@
-subprojects {
-    afterEvaluate { project ->
+import org.gradle.api.JavaVersion
+
+subprojects { project ->
+    afterEvaluate {
         if (project.hasProperty("android")) {
             project.android {
                 if (namespace == null) {
@@ -12,7 +14,18 @@ subprojects {
                         }
                     }
                 }
+
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
             }
+        }
+    }
+
+    project.tasks.configureEach { task ->
+        if (task.hasProperty("kotlinOptions")) {
+            task.kotlinOptions.jvmTarget = "17"
         }
     }
 }
