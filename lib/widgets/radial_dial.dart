@@ -73,10 +73,10 @@ class RadialDial extends StatelessWidget {
                 height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white,
+                  color: const Color(0xFF1E1E1E),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withOpacity(0.2),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -90,7 +90,7 @@ class RadialDial extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -99,7 +99,7 @@ class RadialDial extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: Colors.black38,
+                        color: Colors.white54,
                       ),
                     ),
                   ],
@@ -124,7 +124,7 @@ class _DialPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final paintTicks = Paint()
-      ..color = Colors.black26
+      ..color = Colors.white30
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;

@@ -12,7 +12,7 @@ void main() {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.light,
     ),
   );
   runApp(const MyApp());
@@ -30,10 +30,10 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Rimble',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
+        theme: ThemeData.dark().copyWith(
+          scaffoldBackgroundColor: const Color(0xFF121212),
           textTheme: GoogleFonts.interTextTheme(
-            Theme.of(context).textTheme,
+            ThemeData.dark().textTheme,
           ),
           useMaterial3: true,
         ),

@@ -18,7 +18,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(viewportFraction: 0.75);
+    _pageController = PageController(viewportFraction: 0.85);
   }
 
   @override
@@ -27,110 +27,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     super.dispose();
   }
 
-  void _showPlaylistsPanel(BuildContext context, MusicController controller) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 24,
-            right: 24,
-            top: 32,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Playlists',
-                style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
-              ),
-              const SizedBox(height: 16),
-              
-              // Existing Playlists
-              if (controller.playlists.isEmpty)
-                Text(
-                  'No playlists found.',
-                  style: GoogleFonts.inter(fontSize: 14, color: Colors.black54),
-                )
-              else
-                SizedBox(
-                  height: 150, // Constrain height for the list
-                  child: ListView.builder(
-                    itemCount: controller.playlists.length,
-                    itemBuilder: (context, index) {
-                      final playlist = controller.playlists[index];
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.playlist_play, color: Colors.black87),
-                        title: Text(playlist.playlist, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-                        subtitle: Text('${playlist.numOfSongs} songs', style: GoogleFonts.inter(fontSize: 12, color: Colors.black54)),
-                        onTap: () {
-                          // Handle playlist tap here
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
-                  ),
-                ),
-                
-              const Divider(height: 32),
-              
-              Text(
-                'Create New Playlist',
-                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Playlist Name',
-                  filled: true,
-                  fillColor: Colors.grey.shade100,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                ),
-                style: GoogleFonts.inter(fontSize: 16),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 0,
-                  ),
-                  onPressed: () {
-                    // Logic to create playlist would go here
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Playlist created', style: GoogleFonts.inter()),
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                    );
-                  },
-                  child: Text('Create', style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
-                ),
-              ),
-              const SizedBox(height: 32),
-            ],
-          ),
-        );
-      },
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +39,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
         if (controller.isLoading) {
           return const Scaffold(
-            backgroundColor: Color(0xFFE8E8EC),
+            backgroundColor: Color(0xFF121212),
             body: Center(child: CircularProgressIndicator()),
           );
         }
@@ -173,12 +70,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 children: [
                   _buildHeader(context),
                   Expanded(
-                    flex: 55,
+                    flex: 65,
                     child: _buildCarousel(controller),
                   ),
-                  _buildPagination(controller),
                   Expanded(
-                    flex: 40,
+                    flex: 30,
                     child: _buildRadialDialAndControls(controller),
                   ),
                   const SizedBox(height: 24),
@@ -193,23 +89,23 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   Widget _buildPermissionDenied() {
     return Scaffold(
-      backgroundColor: const Color(0xFFE8E8EC),
+      backgroundColor: const Color(0xFF121212),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.folder_off, size: 64, color: Colors.black54),
+            const Icon(Icons.folder_off, size: 64, color: Colors.white54),
             const SizedBox(height: 16),
             Text(
               'Storage Permission Required',
               style: GoogleFonts.inter(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
-            const Text('Please grant permission to read local music.'),
+            const Text('Please grant permission to read local music.', style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
@@ -225,19 +121,19 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   Widget _buildEmptyState() {
     return Scaffold(
-      backgroundColor: const Color(0xFFE8E8EC),
+      backgroundColor: const Color(0xFF121212),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.music_note, size: 64, color: Colors.black54),
+            const Icon(Icons.music_note, size: 64, color: Colors.white54),
             const SizedBox(height: 16),
             Text(
               'No Music Found',
               style: GoogleFonts.inter(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: Colors.white,
               ),
             ),
           ],
@@ -257,18 +153,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
             style: GoogleFonts.inter(
               fontSize: 34,
               fontWeight: FontWeight.w800,
-              color: Colors.black87,
+              color: Colors.white,
               letterSpacing: -1.0,
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.05),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.queue_music, color: Colors.black87),
-              onPressed: () => _showPlaylistsPanel(context, context.read<MusicController>()),
             ),
           ),
         ],
@@ -290,7 +176,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             double value = 1.0;
             if (_pageController.position.haveDimensions) {
               value = _pageController.page! - index;
-              value = (1 - (value.abs() * 0.15)).clamp(0.85, 1.0);
+              value = (1 - (value.abs() * 0.1)).clamp(0.9, 1.0);
             }
             double opacity = value.clamp(0.7, 1.0);
             
@@ -316,33 +202,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     );
   }
 
-  Widget _buildPagination(MusicController controller) {
-    int totalDots = controller.songList.length > 5 ? 5 : controller.songList.length;
-    if (totalDots == 0) return const SizedBox.shrink();
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(totalDots, (index) {
-        bool isActive = false;
-        if (controller.songList.length <= 5) {
-          isActive = index == controller.currentIndex;
-        } else {
-          isActive = index == 2;
-        }
-
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(horizontal: 4.0),
-          height: 8,
-          width: isActive ? 24 : 8,
-          decoration: BoxDecoration(
-            color: isActive ? Colors.black87 : Colors.black26,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        );
-      }),
-    );
-  }
 
   Widget _buildRadialDialAndControls(MusicController controller) {
     return Column(
@@ -370,23 +230,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
               }
             );
           }
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              iconSize: 32,
-              icon: const Icon(Icons.skip_previous, color: Colors.black87),
-              onPressed: controller.previous,
-            ),
-            const SizedBox(width: 80),
-            IconButton(
-              iconSize: 32,
-              icon: const Icon(Icons.skip_next, color: Colors.black87),
-              onPressed: controller.next,
-            ),
-          ],
         ),
       ],
     );

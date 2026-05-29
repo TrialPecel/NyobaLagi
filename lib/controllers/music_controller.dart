@@ -15,7 +15,7 @@ class MusicController extends ChangeNotifier {
   bool _isPlaying = false;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
-  Color _dominantColor = const Color(0xFFE8E8EC);
+  Color _dominantColor = const Color(0xFF121212);
   bool _permissionGranted = false;
   bool _isLoading = true;
 
@@ -74,13 +74,28 @@ class MusicController extends ChangeNotifier {
       ignoreCase: true,
     );
     
-    // Sort by recently added - OnAudioQuery has DATE_ADDED
     _songList = await _audioQuery.querySongs(
       sortType: SongSortType.DATE_ADDED,
       orderType: OrderType.DESC_OR_GREATER,
       uriType: UriType.EXTERNAL,
       ignoreCase: true,
     );
+
+    // Block specific folders from showing
+    List<String> blockedFolders = [
+      'whatsapp',
+      'notifications',
+      'ringtones',
+      'alarms',
+      'podcasts',
+      'voice recorder',
+      'recordings'
+    ];
+
+    _songList = _songList.where((song) {
+      final path = song.data.toLowerCase();
+      return !blockedFolders.any((folder) => path.contains(folder));
+    }).toList();
 
     _isLoading = false;
     if (_songList.isNotEmpty && _currentIndex == -1) {
@@ -189,17 +204,17 @@ class MusicController extends ChangeNotifier {
         
         Color? newColor = paletteGenerator.dominantColor?.color;
         if (newColor != null) {
-          // Lighten/desaturate the color to match the iOS clean aesthetic
+          // Darken the color to match the dark aesthetic
           HSLColor hsl = HSLColor.fromColor(newColor);
-          _dominantColor = hsl.withLightness((hsl.lightness + 0.4).clamp(0.0, 0.95)).toColor();
+          _dominantColor = hsl.withLightness((hsl.lightness - 0.2).clamp(0.05, 0.3)).toColor();
         } else {
-          _dominantColor = const Color(0xFFE8E8EC);
+          _dominantColor = const Color(0xFF121212);
         }
       } else {
-        _dominantColor = const Color(0xFFE8E8EC);
+        _dominantColor = const Color(0xFF121212);
       }
     } catch (e) {
-      _dominantColor = const Color(0xFFE8E8EC);
+      _dominantColor = const Color(0xFF121212);
     }
     notifyListeners();
   }
