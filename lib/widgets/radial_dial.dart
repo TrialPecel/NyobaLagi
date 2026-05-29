@@ -53,14 +53,17 @@ class RadialDial extends StatelessWidget {
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          GestureDetector(
-            onPanStart: (details) => _handlePan(details.localPosition, const Size(300, 150)),
-            onPanUpdate: (details) => _handlePan(details.localPosition, const Size(300, 150)),
-            child: Container(
-              color: Colors.transparent, // Required to catch gestures over empty space
-              child: CustomPaint(
-                size: const Size(300, 150),
-                painter: _DialPainter(progress: progress),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 32.0),
+            child: GestureDetector(
+              onPanStart: (details) => _handlePan(details.localPosition, const Size(300, 150)),
+              onPanUpdate: (details) => _handlePan(details.localPosition, const Size(300, 150)),
+              child: Container(
+                color: Colors.transparent, // Required to catch gestures over empty space
+                child: CustomPaint(
+                  size: const Size(300, 150),
+                  painter: _DialPainter(progress: progress),
+                ),
               ),
             ),
           ),

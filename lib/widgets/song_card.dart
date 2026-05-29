@@ -27,9 +27,9 @@ class SongCard extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const [
+      decoration: ShapeDecoration(
+        shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(110)),
+        shadows: const [
           BoxShadow(
             color: Colors.black26,
             blurRadius: 24,
@@ -37,8 +37,8 @@ class SongCard extends StatelessWidget {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+      child: ClipPath(
+        clipper: ShapeBorderClipper(shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(110))),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -47,6 +47,9 @@ class SongCard extends StatelessWidget {
               id: song.id,
               type: ArtworkType.AUDIO,
               artworkFit: BoxFit.cover,
+              quality: 100,
+              format: ArtworkFormat.JPEG,
+              size: 2000,
               nullArtworkWidget: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
